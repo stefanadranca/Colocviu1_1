@@ -3,6 +3,7 @@ package ro.pub.cs.systems.eim.colocviu1_1;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -16,6 +17,10 @@ public class Colocviul_1MainActivity extends Activity {
     private ButtonClickListener buttonClickListener = new ButtonClickListener();
 
     private Integer numberOfSelectedPoints = 0;
+
+    private Boolean serviceStatus = Constants.SERVICE_STOPPED;
+    private IntentFilter intentFilter = new IntentFilter();
+    private MessageBroadcastReceiver messageBroadcastReceiver = new MessageBroadcastReceiver();
 
     private class ButtonClickListener implements View.OnClickListener {
 
@@ -52,10 +57,15 @@ public class Colocviul_1MainActivity extends Activity {
                     intent.putExtra(Constants.SELECTED_POINTS, pointsText);
                     startActivityForResult(intent, Constants.SECONDARY_ACTIVITY_REQUEST_CODE);
                     numberOfSelectedPoints = 0;
-                    pointsText = "";
-                    textView.setText(pointsText);
                     break;
 
+            }
+
+            if (numberOfSelectedPoints >= 4 && serviceStatus == Constants.SERVICE_STOPPED) {
+                Intent intent = new Intent(getApplicationContext(), Colocviul_1Service.class);
+                intent.putExtra(Constants.COMMANDS, pointsText);
+                getApplicationContext().startService(intent);
+                serviceStatus = Constants.SERVICE_STARTED;
             }
         }
     }
@@ -84,6 +94,7 @@ public class Colocviul_1MainActivity extends Activity {
                 Log.d(Constants.LOG_NR_POINTS, numberOfSelectedPoints.toString());
             }
         }
+        intentFilter.addAction("BROADCAST");
     }
 
     protected void onSaveInstanceState(Bundle savedInstanceState) {
@@ -96,6 +107,19 @@ public class Colocviul_1MainActivity extends Activity {
                 Toast.makeText(this, "The activity returned from REGISTER", Toast.LENGTH_LONG).show();
             else Toast.makeText(this, "The activity returned from CANCEL", Toast.LENGTH_LONG).show();
         }
+        String pointsText = "";
+        textView.setText(pointsText);
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        registerReceiver(messageBroadcastReceiver, intentFilter);
+    }
+
+    @Override
+    protected void onPause() {
+        unregisterReceiver(messageBroadcastReceiver);
+        super.onPause();
     }
 
 
