@@ -2,11 +2,13 @@ package ro.pub.cs.systems.eim.colocviu1_1;
 
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class Colocviul_1MainActivity extends Activity {
     private TextView textView;
@@ -45,6 +47,14 @@ public class Colocviul_1MainActivity extends Activity {
                     Log.d(Constants.LOG_NR_POINTS, numberOfSelectedPoints.toString());
                     textView.setText(pointsText);
                     break;
+                case R.id.navigate_to_secondary_activity:
+                    Intent intent = new Intent(getApplicationContext(),Colocviul_1SecondaryActivity.class);
+                    intent.putExtra(Constants.SELECTED_POINTS, pointsText);
+                    startActivityForResult(intent, Constants.SECONDARY_ACTIVITY_REQUEST_CODE);
+                    numberOfSelectedPoints = 0;
+                    pointsText = "";
+                    textView.setText(pointsText);
+                    break;
 
             }
         }
@@ -59,11 +69,14 @@ public class Colocviul_1MainActivity extends Activity {
         westButton = (Button) findViewById(R.id.west_button);
         northButton = (Button) findViewById(R.id.north_button);
         southButton = (Button) findViewById(R.id.south_button);
+        navigateToSecondaryActivity = (Button) findViewById(R.id.navigate_to_secondary_activity);
 
         eastButton.setOnClickListener(buttonClickListener);
         northButton.setOnClickListener(buttonClickListener);
         westButton.setOnClickListener(buttonClickListener);
         southButton.setOnClickListener(buttonClickListener);
+        navigateToSecondaryActivity.setOnClickListener(buttonClickListener);
+
 
         if (savedInstanceState != null) {
             if (savedInstanceState.containsKey(Constants.NR_OF_POINTS)) {
@@ -76,5 +89,14 @@ public class Colocviul_1MainActivity extends Activity {
     protected void onSaveInstanceState(Bundle savedInstanceState) {
         savedInstanceState.putString(Constants.NR_OF_POINTS, numberOfSelectedPoints.toString());
     }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        if (requestCode == Constants.SECONDARY_ACTIVITY_REQUEST_CODE) {
+            if (resultCode == RESULT_OK)
+                Toast.makeText(this, "The activity returned from REGISTER", Toast.LENGTH_LONG).show();
+            else Toast.makeText(this, "The activity returned from CANCEL", Toast.LENGTH_LONG).show();
+        }
+    }
+
 
 }

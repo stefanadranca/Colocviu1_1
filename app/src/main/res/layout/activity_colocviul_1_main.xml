@@ -53,7 +53,7 @@
         android:layout_height="wrap_content"
         android:text=""/>
     <Button
-        android:id="@+id/navigate_so_secondary_activity"
+        android:id="@+id/navigate_to_secondary_activity"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center"
